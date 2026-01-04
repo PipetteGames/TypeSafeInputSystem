@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.pipettegames.inputprovider": {
+      "version": "file:InputProvider",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.2d.animation": {
       "version": "10.2.1",
       "depth": 1,

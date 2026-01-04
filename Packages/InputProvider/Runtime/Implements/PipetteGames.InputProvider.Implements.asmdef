@@ -1,0 +1,17 @@
+{
+    "name": "PipetteGames.InputProvider.Implements",
+    "rootNamespace": "PipetteGames.Inputs",
+    "references": [
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:dcd7f5febd9541e4cb603f8494adcbf9"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
