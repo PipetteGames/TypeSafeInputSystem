@@ -1,0 +1,185 @@
+using System;
+using System.Collections.Generic;
+using PipetteGames.Inputs.Interfaces;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+namespace PipetteGames.Inputs.Implements
+{
+    public class InputProvider<T> : IInputProvider<T>, IDisposable where T : Enum
+    {
+        private InputActionAsset _inputActionAsset;
+        private Dictionary<T, InputAction> _actions;
+
+        private bool _enabled;
+
+        public InputProvider(InputActionAsset inputActionAsset)
+        {
+            if (inputActionAsset == null)
+            {
+                throw new ArgumentNullException(nameof(inputActionAsset));
+            }
+            _inputActionAsset = inputActionAsset;
+            _actions = new();
+            _enabled = true;
+        }
+
+        public void RegisterAction(string actionMapName, T key)
+        {
+            RegisterAction(actionMapName, key, key.ToString());
+        }
+
+        public void RegisterAction(string actionMapName, T key, string actionName)
+        {
+            if (_actions.ContainsKey(key))
+            {
+                Debug.LogError($"Failed to Register action. Action for key '{key}' is already registered.");
+                return;
+            }
+
+            var actionMap = _inputActionAsset.FindActionMap(actionMapName);
+            if (actionMap == null)
+            {
+                Debug.LogError($"Failed to Register action. Action map '{actionMapName}' not found.");
+                return;
+            }
+
+            var action = actionMap.FindAction(actionName);
+            if (action == null)
+            {
+                Debug.LogError($"Failed to Register action. Action '{actionName}' not found in action map '{actionMapName}'.");
+                return;
+            }
+
+            _actions[key] = action;
+        }
+
+        public void Enable()
+        {
+            _enabled = true;
+        }
+
+        public void Disable()
+        {
+            _enabled = false;
+        }
+
+        public void Enable(T action)
+        {
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                inputAction.Enable();
+            }
+            else
+            {
+                Debug.LogError($"Failed to Enable action. Action for key '{action}' is not registered.");
+            }
+        }
+
+        public void Disable(T action)
+        {
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                inputAction.Disable();
+            }
+            else
+            {
+                Debug.LogError($"Failed to Disable action. Action for key '{action}' is not registered.");
+            }
+        }
+
+        public bool IsEnabled()
+        {
+            return _enabled;
+        }
+
+        public bool IsEnabled(T action)
+        {
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                return inputAction.enabled;
+            }
+            else
+            {
+                Debug.LogError($"Failed to check IsEnabled. Action for key '{action}' is not registered.");
+                return false;
+            }
+        }
+
+        public TValue ReadValue<TValue>(T action) where TValue : struct
+        {
+            if (_enabled == false)
+            {
+                return default;
+            }
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                return inputAction.ReadValue<TValue>();
+            }
+            else
+            {
+                Debug.LogError($"Failed to ReadValue. Action for key '{action}' is not registered.");
+                return default;
+            }
+        }
+
+        public bool IsPressed(T action)
+        {
+            if (_enabled == false)
+            {
+                return false;
+            }
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                return inputAction.IsPressed();
+            }
+            else
+            {
+                Debug.LogError($"Failed to check IsPressed. Action for key '{action}' is not registered.");
+                return false;
+            }
+        }
+
+        public bool WasPressedThisFrame(T action)
+        {
+            if (_enabled == false)
+            {
+                return false;
+            }
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                return inputAction.WasPressedThisFrame();
+            }
+            else
+            {
+                Debug.LogError($"Failed to check WasPressedThisFrame. Action for key '{action}' is not registered.");
+                return false;
+            }
+        }
+
+        public bool WasReleasedThisFrame(T action)
+        {
+            if (_enabled == false)
+            {
+                return false;
+            }
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                return inputAction.WasReleasedThisFrame();
+            }
+            else
+            {
+                Debug.LogError($"Failed to check WasReleasedThisFrame. Action for key '{action}' is not registered.");
+                return false;
+            }
+        }
+
+        public void Dispose()
+        {
+            _inputActionAsset = null;
+            _actions?.Clear();
+            _actions = null;
+            _enabled = false;
+        }
+    }
+}
