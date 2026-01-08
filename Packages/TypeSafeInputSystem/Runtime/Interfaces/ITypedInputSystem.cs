@@ -6,7 +6,7 @@ namespace PipetteGames.TypeSafeInputSystem.Interfaces
     /// TypedInputSystem のインターフェース
     /// </summary>
     /// <typeparam name="T">アクションを識別する列挙型</typeparam>
-    public interface ITypedInputSystem<T> where T : Enum
+    public interface ITypedInputSystem<T> : IDisposable where T : Enum
     {
         /// <summary>
         /// アクションを登録する

@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 namespace PipetteGames.Inputs.Implements
 {
-    public class TypedInputSystem<T> : ITypedInputSystem<T>, IDisposable where T : Enum
+    public class TypedInputSystem<T> : ITypedInputSystem<T> where T : Enum
     {
         private InputActionAsset _inputActionAsset;
         private Dictionary<T, InputAction> _actions;
