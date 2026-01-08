@@ -1,4 +1,4 @@
-# InputProvider
+# TypeSafeInputSystem
 
 Unity で利用可能な汎用性のある入力状態の取得パッケージです。  
 Unity の Input System をラップし、ジェネリクスを活用した型安全で管理しやすい入力管理を提供します。
@@ -13,7 +13,7 @@ Unity の Input System をラップし、ジェネリクスを活用した型安
 
 1. Unity Package Manager を開く。
 2. 「Add package from git URL」を選択。
-3. URL: `https://github.com/PipetteGames/InputProvider.git?path=Packages/InputProvider` を入力。
+3. URL: `https://github.com/PipetteGames/TypeSafeInputSystem.git?path=Packages/TypeSafeInputSystem` を入力。
 4. インストール完了。
 
 または、Packages/manifest.json に以下を追加:
@@ -21,7 +21,7 @@ Unity の Input System をラップし、ジェネリクスを活用した型安
 ```json
 {
     "dependencies": {
-        "com.pipettegames.inputprovider": "https://github.com/PipetteGames/InputProvider.git?path=Packages/InputProvider"
+        "com.pipettegames.typesafeinputsystem": "https://github.com/PipetteGames/TypeSafeInputSystem.git?path=Packages/TypeSafeInputSystem"
     }
 }
 ```
@@ -30,7 +30,7 @@ Unity の Input System をラップし、ジェネリクスを活用した型安
 
 URL の末尾にバージョン指定を追加
 
-例: `https://github.com/PipetteGames/InputProvider.git?path=Packages/InputProvider#v0.1.0`
+例: `https://github.com/PipetteGames/TypeSafeInputSystem.git?path=Packages/TypeSafeInputSystem#v0.2.0`
 
 ## 使い方
 
@@ -57,56 +57,56 @@ Unity エディタで `InputActionAsset` を作成し、対応するアクショ
     -   Action: `Sprint` (Button)
     -   Action: `Interact` (Button)
 
-### 3. InputProvider の初期化
+### 3. TypedInputSystem の初期化
 
 ```csharp
-using PipetteGames.Inputs.Implements;
-using PipetteGames.Inputs.Interfaces;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using PipetteGames.TypeSafeInputSystem.Implements;
+using PipetteGames.TypeSafeInputSystem.Interfaces;
 
 public class PlayerController : MonoBehaviour
 {
-    private IInputProvider<InputActionType> _inputProvider;
+    private ITypedInputSystem<InputActionType> _typedInputSystem;
 
     private void Start()
     {
         // InputActionAsset を読み込み
         var inputActionAsset = Resources.Load<InputActionAsset>("InputSystem_Actions");
 
-        // InputProvider を初期化
-        _inputProvider = new InputProvider<InputActionType>(inputActionAsset);
+        // TypedInputSystem を初期化
+        _typedInputSystem = new TypedInputSystem<InputActionType>(inputActionAsset);
 
         // アクションを登録
-        _inputProvider.RegisterAction("Player", InputActionType.Move);
-        _inputProvider.RegisterAction("Player", InputActionType.Sprint);
-        _inputProvider.RegisterAction("Player", InputActionType.Interact);
+        _typedInputSystem.RegisterAction("Player", InputActionType.Move);
+        _typedInputSystem.RegisterAction("Player", InputActionType.Sprint);
+        _typedInputSystem.RegisterAction("Player", InputActionType.Interact);
 
         // 有効化
-        _inputProvider.Enable();
+        _typedInputSystem.Enable();
     }
 
     private void Update()
     {
         // 入力の取得
-        if (_inputProvider.IsPressed(InputActionType.Sprint))
+        if (_typedInputSystem.IsPressed(InputActionType.Sprint))
         {
             Debug.Log("Sprint!");
         }
 
-        if (_inputProvider.WasPressedThisFrame(InputActionType.Interact))
+        if (_typedInputSystem.WasPressedThisFrame(InputActionType.Interact))
         {
             Debug.Log("Interact!");
         }
 
         // アナログ値の取得
-        var moveInput = _inputProvider.ReadValue<Vector2>(InputActionType.Move);
+        var moveInput = _typedInputSystem.ReadValue<Vector2>(InputActionType.Move);
         transform.Translate(moveInput * Time.deltaTime);
     }
 
     private void OnDestroy()
     {
-        _inputProvider?.Dispose();
+        _typedInputSystem?.Dispose();
     }
 }
 ```
@@ -115,31 +115,31 @@ public class PlayerController : MonoBehaviour
 
 ```csharp
 // 特定のアクションのみ無効化
-_inputProvider.Disable(InputActionType.Sprint);
+_typedInputSystem.Disable(InputActionType.Sprint);
 
 // 特定のアクションのみ有効化
-_inputProvider.Enable(InputActionType.Sprint);
+_typedInputSystem.Enable(InputActionType.Sprint);
 
 // アクション単位での状態確認
-if (_inputProvider.IsEnabled(InputActionType.Sprint))
+if (_typedInputSystem.IsEnabled(InputActionType.Sprint))
 {
     // Sprint が有効
 }
 ```
 
-### 5. プロバイダー全体の有効化/無効化
+### 5. 全体の有効化/無効化
 
 ```csharp
-// プロバイダー全体を無効化（すべてのアクションが無効になる）
-_inputProvider.Disable();
+// 全体を無効化（すべてのアクションが無効になる）
+_typedInputSystem.Disable();
 
-// プロバイダー全体を有効化
-_inputProvider.Enable();
+// 全体を有効化
+_typedInputSystem.Enable();
 
-// プロバイダーの有効状態を確認
-if (_inputProvider.IsEnabled())
+// 有効状態を確認
+if (_typedInputSystem.IsEnabled())
 {
-    // プロバイダーが有効
+    // 全体が有効
 }
 ```
 
@@ -156,8 +156,8 @@ if (_inputProvider.IsEnabled())
 
 | メソッド            | 説明                     |
 | ------------------- | ------------------------ |
-| `Enable()`          | プロバイダー全体を有効化 |
-| `Disable()`         | プロバイダー全体を無効化 |
+| `Enable()`          | 全体を有効化             |
+| `Disable()`         | 全体を無効化             |
 | `Enable(T action)`  | 特定のアクションを有効化 |
 | `Disable(T action)` | 特定のアクションを無効化 |
 
@@ -165,7 +165,7 @@ if (_inputProvider.IsEnabled())
 
 | メソッド                         | 説明                                       |
 | -------------------------------- | ------------------------------------------ |
-| `IsEnabled()`                    | プロバイダーが有効か                       |
+| `IsEnabled()`                    | 全体が有効か                               |
 | `IsEnabled(T action)`            | 特定のアクションが有効か                   |
 | `IsPressed(T action)`            | 特定のアクションが押されているか           |
 | `WasPressedThisFrame(T action)`  | 特定のアクションがこのフレームで押されたか |
@@ -176,10 +176,10 @@ if (_inputProvider.IsEnabled())
 
 ### グローバルフラグと個別フラグ
 
--   **グローバルフラグ (`Enable()`/`Disable()`)**: プロバイダー全体のオン/オフを制御
+-   **グローバルフラグ (`Enable()`/`Disable()`)**: 全体のオン/オフを制御
 -   **個別フラグ (`Enable(T action)`/`Disable(T action)`)**: 特定のアクションのみのオン/オフを制御
 
-プロバイダーが無効な場合、すべてのアクション取得メソッド (`IsPressed`, `ReadValue` など) は無効な結果を返します。
+全体が無効な場合、すべてのアクション取得メソッド (`IsPressed`, `ReadValue` など) は無効な結果を返します。
 
 ## ライセンス
 
