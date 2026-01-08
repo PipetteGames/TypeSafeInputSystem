@@ -1,6 +1,6 @@
 {
 	"name": "com.pipettegames.typesafeinputsystem",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"displayName": "TypeSafeInputSystem",
 	"description": "A general-purpose type-safe input handle system for Unity by Pipette Games.",
 	"unity": "2022.2",
