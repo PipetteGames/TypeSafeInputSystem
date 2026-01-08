@@ -1,0 +1,22 @@
+{
+	"name": "com.pipettegames.typesafeinputsystem",
+	"version": "0.1.0",
+	"displayName": "TypeSafeInputSystem",
+	"description": "A general-purpose type-safe input handle system for Unity by Pipette Games.",
+	"unity": "2022.2",
+	"keywords": [
+		"input",
+		"type-safe",
+		"input-system"
+	],
+	"author": {
+		"name": "Pipette Games",
+		"email": "pipettegames@gmail.com",
+		"url": "https://github.com/PipetteGames"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/PipetteGames/TypeSafeInputSystem.git"
+	}
+}

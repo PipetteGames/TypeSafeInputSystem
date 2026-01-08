@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.pipettegames.inputprovider": {
-      "version": "file:InputProvider",
+    "com.pipettegames.typesafeinputsystem": {
+      "version": "file:TypeSafeInputSystem",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
