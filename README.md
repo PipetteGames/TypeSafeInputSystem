@@ -143,6 +143,53 @@ if (_typedInputSystem.IsEnabled())
 }
 ```
 
+### 6. イベントドリブンな入力検知
+
+コールバック方式で入力検知を行う場合：
+
+```csharp
+private void Start()
+{
+    // ... 初期化コード ...
+
+    // Started イベント登録（入力開始時）
+    _typedInputSystem.RegisterStarted(InputActionType.Sprint, OnSprintStarted);
+
+    // Performed イベント登録（入力実行時）
+    _typedInputSystem.RegisterPerformed(InputActionType.Interact, OnInteractPerformed);
+
+    // Canceled イベント登録（入力終了時）
+    _typedInputSystem.RegisterCanceled(InputActionType.Sprint, OnSprintCanceled);
+}
+
+private void OnSprintStarted(InputAction.CallbackContext context)
+{
+    Debug.Log("Sprint started!");
+}
+
+private void OnInteractPerformed(InputAction.CallbackContext context)
+{
+    Debug.Log("Interact performed!");
+}
+
+private void OnSprintCanceled(InputAction.CallbackContext context)
+{
+    Debug.Log("Sprint canceled!");
+}
+
+private void OnDestroy()
+{
+    // コールバックを登録解除
+    _typedInputSystem?.UnregisterStarted(InputActionType.Sprint, OnSprintStarted);
+    _typedInputSystem?.UnregisterPerformed(InputActionType.Interact, OnInteractPerformed);
+    _typedInputSystem?.UnregisterCanceled(InputActionType.Sprint, OnSprintCanceled);
+
+    _typedInputSystem?.Dispose();
+}
+```
+
+**注意**: コールバック登録時と登録解除時には、**同じコールバック参照を使用する必要があります**。メソッドグループを直接渡さず、メソッド参照を保持して使用してください。
+
 ## API リファレンス
 
 ### 登録
@@ -151,6 +198,17 @@ if (_typedInputSystem.IsEnabled())
 | ---------------------------------------------------------------- | -------------------------------------------------- |
 | `RegisterAction(string actionMapName, T key)`                    | アクションを登録（アクション名はキーの名前を使用） |
 | `RegisterAction(string actionMapName, T key, string actionName)` | アクションを登録（アクション名を指定）             |
+
+### イベント登録
+
+| メソッド                                              | 説明                                     |
+| ----------------------------------------------------- | ---------------------------------------- |
+| `RegisterStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のコールバックを登録           |
+| `RegisterPerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のコールバックを登録           |
+| `RegisterCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のコールバックを登録           |
+| `UnregisterStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のコールバックを登録解除       |
+| `UnregisterPerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のコールバックを登録解除       |
+| `UnregisterCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のコールバックを登録解除       |
 
 ### 有効化制御
 
@@ -180,6 +238,14 @@ if (_typedInputSystem.IsEnabled())
 -   **個別フラグ (`Enable(T action)`/`Disable(T action)`)**: 特定のアクションのみのオン/オフを制御
 
 全体が無効な場合、すべてのアクション取得メソッド (`IsPressed`, `ReadValue` など) は無効な結果を返します。
+
+### イベントドリブン入力検知
+
+`RegisterStarted`, `RegisterPerformed`, `RegisterCanceled` メソッドを使用することで、イベント駆動型の入力処理が可能です。
+
+-   **グローバルフラグの影響**: グローバルフラグが無効な場合、コールバックは呼び出されません。
+-   **コールバック重複登録**: 同じコールバック参照を複数回登録しようとすると警告が出力され、無視されます。
+-   **コールバック参照管理**: 登録解除時には、登録時と同じコールバック参照を使用する必要があります。
 
 ## ライセンス
 
