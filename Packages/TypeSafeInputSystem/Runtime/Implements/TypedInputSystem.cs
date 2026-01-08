@@ -11,7 +11,7 @@ namespace PipetteGames.Inputs.Implements
         private InputActionAsset _inputActionAsset;
         private Dictionary<T, InputAction> _actions;
 
-        private bool _enabled;
+        private bool _isEnabled;
 
         public TypedInputSystem(InputActionAsset inputActionAsset)
         {
@@ -21,7 +21,7 @@ namespace PipetteGames.Inputs.Implements
             }
             _inputActionAsset = inputActionAsset;
             _actions = new();
-            _enabled = true;
+            _isEnabled = true;
         }
 
         public void RegisterAction(string actionMapName, T key)
@@ -56,12 +56,12 @@ namespace PipetteGames.Inputs.Implements
 
         public void Enable()
         {
-            _enabled = true;
+            _isEnabled = true;
         }
 
         public void Disable()
         {
-            _enabled = false;
+            _isEnabled = false;
         }
 
         public void Enable(T action)
@@ -90,7 +90,7 @@ namespace PipetteGames.Inputs.Implements
 
         public bool IsEnabled()
         {
-            return _enabled;
+            return _isEnabled;
         }
 
         public bool IsEnabled(T action)
@@ -108,7 +108,7 @@ namespace PipetteGames.Inputs.Implements
 
         public TValue ReadValue<TValue>(T action) where TValue : struct
         {
-            if (_enabled == false)
+            if (_isEnabled == false)
             {
                 return default;
             }
@@ -125,7 +125,7 @@ namespace PipetteGames.Inputs.Implements
 
         public bool IsPressed(T action)
         {
-            if (_enabled == false)
+            if (_isEnabled == false)
             {
                 return false;
             }
@@ -142,7 +142,7 @@ namespace PipetteGames.Inputs.Implements
 
         public bool WasPressedThisFrame(T action)
         {
-            if (_enabled == false)
+            if (_isEnabled == false)
             {
                 return false;
             }
@@ -159,7 +159,7 @@ namespace PipetteGames.Inputs.Implements
 
         public bool WasReleasedThisFrame(T action)
         {
-            if (_enabled == false)
+            if (_isEnabled == false)
             {
                 return false;
             }
@@ -179,7 +179,7 @@ namespace PipetteGames.Inputs.Implements
             _inputActionAsset = null;
             _actions?.Clear();
             _actions = null;
-            _enabled = false;
+            _isEnabled = false;
         }
     }
 }
