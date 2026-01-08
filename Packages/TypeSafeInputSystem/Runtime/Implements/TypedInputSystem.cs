@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using PipetteGames.TypeSafeInputSystem.Interfaces;
 
-namespace PipetteGames.Inputs.Implements
+namespace PipetteGames.TypeSafeInputSystem.Implements
 {
     public class TypedInputSystem<T> : ITypedInputSystem<T> where T : Enum
     {
