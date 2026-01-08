@@ -11,6 +11,11 @@ namespace PipetteGames.Inputs.Implements
         private InputActionAsset _inputActionAsset;
         private Dictionary<T, InputAction> _actions;
 
+        // コールバック管理用 (Key: (アクション識別キー, 登録されたコールバック), Value: ラップされたコールバック)
+        private Dictionary<(T, Action<InputAction.CallbackContext>), Action<InputAction.CallbackContext>> _startedCallbacks;
+        private Dictionary<(T, Action<InputAction.CallbackContext>), Action<InputAction.CallbackContext>> _performedCallbacks;
+        private Dictionary<(T, Action<InputAction.CallbackContext>), Action<InputAction.CallbackContext>> _canceledCallbacks;
+
         private bool _isEnabled;
 
         public TypedInputSystem(InputActionAsset inputActionAsset)
@@ -21,6 +26,9 @@ namespace PipetteGames.Inputs.Implements
             }
             _inputActionAsset = inputActionAsset;
             _actions = new();
+            _startedCallbacks = new();
+            _performedCallbacks = new();
+            _canceledCallbacks = new();
             _isEnabled = true;
         }
 
@@ -66,26 +74,24 @@ namespace PipetteGames.Inputs.Implements
 
         public void Enable(T action)
         {
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                inputAction.Enable();
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to Enable action. Action for key '{action}' is not registered.");
+                return;
             }
+
+            inputAction.Enable();
         }
 
         public void Disable(T action)
         {
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                inputAction.Disable();
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to Disable action. Action for key '{action}' is not registered.");
+                return;
             }
+
+            inputAction.Disable();
         }
 
         public bool IsEnabled()
@@ -95,15 +101,13 @@ namespace PipetteGames.Inputs.Implements
 
         public bool IsEnabled(T action)
         {
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                return inputAction.enabled;
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to check IsEnabled. Action for key '{action}' is not registered.");
                 return false;
             }
+
+            return inputAction.enabled;
         }
 
         public TValue ReadValue<TValue>(T action) where TValue : struct
@@ -112,15 +116,12 @@ namespace PipetteGames.Inputs.Implements
             {
                 return default;
             }
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                return inputAction.ReadValue<TValue>();
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to ReadValue. Action for key '{action}' is not registered.");
                 return default;
             }
+            return inputAction.ReadValue<TValue>();
         }
 
         public bool IsPressed(T action)
@@ -129,15 +130,12 @@ namespace PipetteGames.Inputs.Implements
             {
                 return false;
             }
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                return inputAction.IsPressed();
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to check IsPressed. Action for key '{action}' is not registered.");
                 return false;
             }
+            return inputAction.IsPressed();
         }
 
         public bool WasPressedThisFrame(T action)
@@ -146,15 +144,12 @@ namespace PipetteGames.Inputs.Implements
             {
                 return false;
             }
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                return inputAction.WasPressedThisFrame();
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to check WasPressedThisFrame. Action for key '{action}' is not registered.");
                 return false;
             }
+            return inputAction.WasPressedThisFrame();
         }
 
         public bool WasReleasedThisFrame(T action)
@@ -163,15 +158,12 @@ namespace PipetteGames.Inputs.Implements
             {
                 return false;
             }
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                return inputAction.WasReleasedThisFrame();
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to check WasReleasedThisFrame. Action for key '{action}' is not registered.");
                 return false;
             }
+            return inputAction.WasReleasedThisFrame();
         }
 
         public void RegisterStarted(T action, Action<InputAction.CallbackContext> callback)
@@ -181,14 +173,28 @@ namespace PipetteGames.Inputs.Implements
                 return;
             }
 
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                inputAction.started += callback;
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to RegisterStarted. Action for key '{action}' is not registered.");
+                return;
             }
+
+            if (_startedCallbacks.ContainsKey((action, callback)))
+            {
+                Debug.LogWarning($"Callback for action '{action}' started event is already registered. Ignoring duplicate registration.");
+                return;
+            }
+
+            Action<InputAction.CallbackContext> wrappedCallback = (context) =>
+            {
+                if (_isEnabled)
+                {
+                    callback(context);
+                }
+            };
+
+            _startedCallbacks[(action, callback)] = wrappedCallback;
+            inputAction.started += wrappedCallback;
         }
 
         public void RegisterPerformed(T action, Action<InputAction.CallbackContext> callback)
@@ -198,14 +204,28 @@ namespace PipetteGames.Inputs.Implements
                 return;
             }
 
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                inputAction.performed += callback;
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to RegisterPerformed. Action for key '{action}' is not registered.");
+                return;
             }
+
+            if (_performedCallbacks.ContainsKey((action, callback)))
+            {
+                Debug.LogWarning($"Callback for action '{action}' performed event is already registered. Ignoring duplicate registration.");
+                return;
+            }
+
+            Action<InputAction.CallbackContext> wrappedCallback = (context) =>
+            {
+                if (_isEnabled)
+                {
+                    callback(context);
+                }
+            };
+
+            _performedCallbacks[(action, callback)] = wrappedCallback;
+            inputAction.performed += wrappedCallback;
         }
 
         public void RegisterCanceled(T action, Action<InputAction.CallbackContext> callback)
@@ -215,14 +235,28 @@ namespace PipetteGames.Inputs.Implements
                 return;
             }
 
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                inputAction.canceled += callback;
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to RegisterCanceled. Action for key '{action}' is not registered.");
+                return;
             }
+
+            if (_canceledCallbacks.ContainsKey((action, callback)))
+            {
+                Debug.LogWarning($"Callback for action '{action}' canceled event is already registered. Ignoring duplicate registration.");
+                return;
+            }
+
+            Action<InputAction.CallbackContext> wrappedCallback = (context) =>
+            {
+                if (_isEnabled)
+                {
+                    callback(context);
+                }
+            };
+
+            _canceledCallbacks[(action, callback)] = wrappedCallback;
+            inputAction.canceled += wrappedCallback;
         }
 
         public void UnregisterStarted(T action, Action<InputAction.CallbackContext> callback)
@@ -232,14 +266,20 @@ namespace PipetteGames.Inputs.Implements
                 return;
             }
 
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                inputAction.started -= callback;
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to UnregisterStarted. Action for key '{action}' is not registered.");
+                return;
             }
+
+            if (!_startedCallbacks.TryGetValue((action, callback), out var wrappedCallback))
+            {
+                Debug.LogError($"Failed to UnregisterStarted. Callback for action '{action}' started event is not registered.");
+                return;
+            }
+
+            inputAction.started -= wrappedCallback;
+            _startedCallbacks.Remove((action, callback));
         }
 
         public void UnregisterPerformed(T action, Action<InputAction.CallbackContext> callback)
@@ -249,14 +289,20 @@ namespace PipetteGames.Inputs.Implements
                 return;
             }
 
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                inputAction.performed -= callback;
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to UnregisterPerformed. Action for key '{action}' is not registered.");
+                return;
             }
+
+            if (!_performedCallbacks.TryGetValue((action, callback), out var wrappedCallback))
+            {
+                Debug.LogError($"Failed to UnregisterPerformed. Callback for action '{action}' performed event is not registered.");
+                return;
+            }
+
+            inputAction.performed -= wrappedCallback;
+            _performedCallbacks.Remove((action, callback));
         }
 
         public void UnregisterCanceled(T action, Action<InputAction.CallbackContext> callback)
@@ -266,14 +312,20 @@ namespace PipetteGames.Inputs.Implements
                 return;
             }
 
-            if (_actions.TryGetValue(action, out var inputAction))
-            {
-                inputAction.canceled -= callback;
-            }
-            else
+            if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to UnregisterCanceled. Action for key '{action}' is not registered.");
+                return;
             }
+
+            if (!_canceledCallbacks.TryGetValue((action, callback), out var wrappedCallback))
+            {
+                Debug.LogError($"Failed to UnregisterCanceled. Callback for action '{action}' canceled event is not registered.");
+                return;
+            }
+
+            inputAction.canceled -= wrappedCallback;
+            _canceledCallbacks.Remove((action, callback));
         }
 
         public void Dispose()
@@ -281,6 +333,12 @@ namespace PipetteGames.Inputs.Implements
             _inputActionAsset = null;
             _actions?.Clear();
             _actions = null;
+            _startedCallbacks?.Clear();
+            _startedCallbacks = null;
+            _performedCallbacks?.Clear();
+            _performedCallbacks = null;
+            _canceledCallbacks?.Clear();
+            _canceledCallbacks = null;
             _isEnabled = false;
         }
     }
