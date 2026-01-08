@@ -1,12 +1,12 @@
 using System;
 
-namespace PipetteGames.Inputs.Interfaces
+namespace PipetteGames.TypeSafeInputSystem.Interfaces
 {
     /// <summary>
-    /// InputProvider のインターフェース
+    /// TypedInputSystem のインターフェース
     /// </summary>
     /// <typeparam name="T">アクションを識別する列挙型</typeparam>
-    public interface IInputProvider<T> where T : Enum
+    public interface ITypedInputSystem<T> where T : Enum
     {
         /// <summary>
         /// アクションを登録する
@@ -23,11 +23,12 @@ namespace PipetteGames.Inputs.Interfaces
         /// <param name="actionName">アクション名</param>
         void RegisterAction(string actionMapName, T key, string actionName);
         /// <summary>
-        /// InputProvider を有効化する
+        /// InputSystem を有効化する
         /// </summary>
         void Enable();
         /// <summary>
-        /// InputProviderを無効化する
+        /// InputSystem を無効化する
+        /// InputSystem が無効な間、すべてのアクションは無効化されます
         /// </summary>
         void Disable();
         /// <summary>
@@ -37,12 +38,11 @@ namespace PipetteGames.Inputs.Interfaces
         void Enable(T action);
         /// <summary>
         /// 特定のアクションを無効化する
-        /// InputProvider が無効な間、すべてのアクションは無効化されます
         /// </summary>
         /// <param name="action">アクション識別キー</param>
         void Disable(T action);
         /// <summary>
-        /// InputProvider が有効か
+        /// InputSystem が有効か
         /// </summary>
         bool IsEnabled();
         /// <summary>

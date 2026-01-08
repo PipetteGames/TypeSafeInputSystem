@@ -1,19 +1,19 @@
 using System;
 using System.Collections.Generic;
-using PipetteGames.Inputs.Interfaces;
+using PipetteGames.TypeSafeInputSystem.Interfaces;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace PipetteGames.Inputs.Implements
 {
-    public class InputProvider<T> : IInputProvider<T>, IDisposable where T : Enum
+    public class TypedInputSystem<T> : ITypedInputSystem<T>, IDisposable where T : Enum
     {
         private InputActionAsset _inputActionAsset;
         private Dictionary<T, InputAction> _actions;
 
         private bool _enabled;
 
-        public InputProvider(InputActionAsset inputActionAsset)
+        public TypedInputSystem(InputActionAsset inputActionAsset)
         {
             if (inputActionAsset == null)
             {
