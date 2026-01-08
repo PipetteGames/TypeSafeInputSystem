@@ -1,7 +1,9 @@
 {
     "name": "PipetteGames.InputProvider.Interfaces",
     "rootNamespace": "PipetteGames.TypeSafeInputSystem.Intefaces",
-    "references": [],
+    "references": [
+        "Unity.InputSystem"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -10,5 +12,5 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": true
+    "noEngineReferences": false
 }

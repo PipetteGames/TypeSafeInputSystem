@@ -1,4 +1,5 @@
 using System;
+using UnityEngine.InputSystem;
 
 namespace PipetteGames.TypeSafeInputSystem.Interfaces
 {
@@ -71,5 +72,41 @@ namespace PipetteGames.TypeSafeInputSystem.Interfaces
         /// <typeparam name="TValue">値の型</typeparam>
         /// <param name="action">アクション識別キー</param>
         TValue ReadValue<TValue>(T action) where TValue : struct;
+        /// <summary>
+        /// アクションが開始されたときのコールバックを登録
+        /// </summary>
+        /// <param name="action">アクション識別キー</param>
+        /// <param name="callback">実行するコールバック</param>
+        void RegisterStarted(T action, Action<InputAction.CallbackContext> callback);
+        /// <summary>
+        /// アクションが実行されたときのコールバックを登録
+        /// </summary>
+        /// <param name="action">アクション識別キー</param>
+        /// <param name="callback">実行するコールバック</param>
+        void RegisterPerformed(T action, Action<InputAction.CallbackContext> callback);
+        /// <summary>
+        /// アクションがキャンセルされたときのコールバックを登録
+        /// </summary>
+        /// <param name="action">アクション識別キー</param>
+        /// <param name="callback">実行するコールバック</param>
+        void RegisterCanceled(T action, Action<InputAction.CallbackContext> callback);
+        /// <summary>
+        /// アクションが開始されたときのコールバックを登録解除
+        /// </summary>
+        /// <param name="action">アクション識別キー</param>
+        /// <param name="callback">登録解除するコールバック</param>
+        void UnregisterStarted(T action, Action<InputAction.CallbackContext> callback);
+        /// <summary>
+        /// アクションが実行されたときのコールバックを登録解除
+        /// </summary>
+        /// <param name="action">アクション識別キー</param>
+        /// <param name="callback">登録解除するコールバック</param>
+        void UnregisterPerformed(T action, Action<InputAction.CallbackContext> callback);
+        /// <summary>
+        /// アクションがキャンセルされたときのコールバックを登録解除
+        /// </summary>
+        /// <param name="action">アクション識別キー</param>
+        /// <param name="callback">登録解除するコールバック</param>
+        void UnregisterCanceled(T action, Action<InputAction.CallbackContext> callback);
     }
 }

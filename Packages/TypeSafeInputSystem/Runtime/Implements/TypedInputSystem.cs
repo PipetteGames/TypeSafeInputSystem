@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using PipetteGames.TypeSafeInputSystem.Interfaces;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using PipetteGames.TypeSafeInputSystem.Interfaces;
 
 namespace PipetteGames.Inputs.Implements
 {
@@ -174,6 +174,108 @@ namespace PipetteGames.Inputs.Implements
             }
         }
 
+        public void RegisterStarted(T action, Action<InputAction.CallbackContext> callback)
+        {
+            if (callback == null)
+            {
+                return;
+            }
+
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                inputAction.started += callback;
+            }
+            else
+            {
+                Debug.LogError($"Failed to RegisterStarted. Action for key '{action}' is not registered.");
+            }
+        }
+
+        public void RegisterPerformed(T action, Action<InputAction.CallbackContext> callback)
+        {
+            if (callback == null)
+            {
+                return;
+            }
+
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                inputAction.performed += callback;
+            }
+            else
+            {
+                Debug.LogError($"Failed to RegisterPerformed. Action for key '{action}' is not registered.");
+            }
+        }
+
+        public void RegisterCanceled(T action, Action<InputAction.CallbackContext> callback)
+        {
+            if (callback == null)
+            {
+                return;
+            }
+
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                inputAction.canceled += callback;
+            }
+            else
+            {
+                Debug.LogError($"Failed to RegisterCanceled. Action for key '{action}' is not registered.");
+            }
+        }
+
+        public void UnregisterStarted(T action, Action<InputAction.CallbackContext> callback)
+        {
+            if (callback == null)
+            {
+                return;
+            }
+
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                inputAction.started -= callback;
+            }
+            else
+            {
+                Debug.LogError($"Failed to UnregisterStarted. Action for key '{action}' is not registered.");
+            }
+        }
+
+        public void UnregisterPerformed(T action, Action<InputAction.CallbackContext> callback)
+        {
+            if (callback == null)
+            {
+                return;
+            }
+
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                inputAction.performed -= callback;
+            }
+            else
+            {
+                Debug.LogError($"Failed to UnregisterPerformed. Action for key '{action}' is not registered.");
+            }
+        }
+
+        public void UnregisterCanceled(T action, Action<InputAction.CallbackContext> callback)
+        {
+            if (callback == null)
+            {
+                return;
+            }
+
+            if (_actions.TryGetValue(action, out var inputAction))
+            {
+                inputAction.canceled -= callback;
+            }
+            else
+            {
+                Debug.LogError($"Failed to UnregisterCanceled. Action for key '{action}' is not registered.");
+            }
+        }
+
         public void Dispose()
         {
             _inputActionAsset = null;
@@ -183,3 +285,4 @@ namespace PipetteGames.Inputs.Implements
         }
     }
 }
+
