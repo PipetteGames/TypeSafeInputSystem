@@ -1,6 +1,6 @@
 {
     "name": "PipetteGames.InputProvider.Interfaces",
-    "rootNamespace": "PipetteGames.Inputs",
+    "rootNamespace": "PipetteGames.TypeSafeInputSystem.Intefaces",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
