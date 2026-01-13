@@ -8,25 +8,25 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
     /// </summary>
     internal class InputSubscription : IInputSubscription
     {
-        private Action _unsubscribeAction;
-        private bool _disposed;
+        private Action _unsubscribe;
+        private bool _isDisposed;
 
         public InputSubscription(Action unsubscribeAction)
         {
-            _unsubscribeAction = unsubscribeAction ?? throw new ArgumentNullException(nameof(unsubscribeAction));
-            _disposed = false;
+            _unsubscribe = unsubscribeAction ?? throw new ArgumentNullException(nameof(unsubscribeAction));
+            _isDisposed = false;
         }
 
         public void Dispose()
         {
-            if (_disposed)
+            if (_isDisposed)
             {
                 return;
             }
 
-            _unsubscribeAction?.Invoke();
-            _unsubscribeAction = null;
-            _disposed = true;
+            _unsubscribe?.Invoke();
+            _unsubscribe = null;
+            _isDisposed = true;
         }
     }
 }

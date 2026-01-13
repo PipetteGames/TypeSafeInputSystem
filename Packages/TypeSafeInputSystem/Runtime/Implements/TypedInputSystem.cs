@@ -166,7 +166,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             return inputAction.WasReleasedThisFrame();
         }
 
-        public IInputSubscription RegisterStarted(T action, Action<InputAction.CallbackContext> callback)
+        public IInputSubscription SubscribeStarted(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
@@ -175,7 +175,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             if (!_actions.TryGetValue(action, out var inputAction))
             {
-                Debug.LogError($"Failed to RegisterStarted. Action for key '{action}' is not registered.");
+                Debug.LogError($"Failed to SubscribeStarted. Action for key '{action}' is not registered.");
                 return null;
             }
 
@@ -196,10 +196,10 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _startedCallbacks[(action, callback)] = wrappedCallback;
             inputAction.started += wrappedCallback;
 
-            return new InputSubscription(() => UnregisterStarted(action, callback));
+            return new InputSubscription(() => UnsubscribeStarted(action, callback));
         }
 
-        public IInputSubscription RegisterPerformed(T action, Action<InputAction.CallbackContext> callback)
+        public IInputSubscription SubscribePerformed(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
@@ -208,7 +208,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             if (!_actions.TryGetValue(action, out var inputAction))
             {
-                Debug.LogError($"Failed to RegisterPerformed. Action for key '{action}' is not registered.");
+                Debug.LogError($"Failed to SubscribePerformed. Action for key '{action}' is not registered.");
                 return null;
             }
 
@@ -229,10 +229,10 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _performedCallbacks[(action, callback)] = wrappedCallback;
             inputAction.performed += wrappedCallback;
 
-            return new InputSubscription(() => UnregisterPerformed(action, callback));
+            return new InputSubscription(() => UnsubscribePerformed(action, callback));
         }
 
-        public IInputSubscription RegisterCanceled(T action, Action<InputAction.CallbackContext> callback)
+        public IInputSubscription SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
@@ -241,7 +241,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             if (!_actions.TryGetValue(action, out var inputAction))
             {
-                Debug.LogError($"Failed to RegisterCanceled. Action for key '{action}' is not registered.");
+                Debug.LogError($"Failed to SubscribeCanceled. Action for key '{action}' is not registered.");
                 return null;
             }
 
@@ -262,10 +262,10 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _canceledCallbacks[(action, callback)] = wrappedCallback;
             inputAction.canceled += wrappedCallback;
 
-            return new InputSubscription(() => UnregisterCanceled(action, callback));
+            return new InputSubscription(() => UnsubscribeCanceled(action, callback));
         }
 
-        public void UnregisterStarted(T action, Action<InputAction.CallbackContext> callback)
+        public void UnsubscribeStarted(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
@@ -274,13 +274,13 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             if (!_actions.TryGetValue(action, out var inputAction))
             {
-                Debug.LogError($"Failed to UnregisterStarted. Action for key '{action}' is not registered.");
+                Debug.LogError($"Failed to UnsubscribeStarted. Action for key '{action}' is not registered.");
                 return;
             }
 
             if (!_startedCallbacks.TryGetValue((action, callback), out var wrappedCallback))
             {
-                Debug.LogError($"Failed to UnregisterStarted. Callback for action '{action}' started event is not registered.");
+                Debug.LogError($"Failed to UnsubscribeStarted. Callback for action '{action}' started event is not registered.");
                 return;
             }
 
@@ -288,7 +288,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _startedCallbacks.Remove((action, callback));
         }
 
-        public void UnregisterPerformed(T action, Action<InputAction.CallbackContext> callback)
+        public void UnsubscribePerformed(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
@@ -297,13 +297,13 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             if (!_actions.TryGetValue(action, out var inputAction))
             {
-                Debug.LogError($"Failed to UnregisterPerformed. Action for key '{action}' is not registered.");
+                Debug.LogError($"Failed to UnsubscribePerformed. Action for key '{action}' is not registered.");
                 return;
             }
 
             if (!_performedCallbacks.TryGetValue((action, callback), out var wrappedCallback))
             {
-                Debug.LogError($"Failed to UnregisterPerformed. Callback for action '{action}' performed event is not registered.");
+                Debug.LogError($"Failed to UnsubscribePerformed. Callback for action '{action}' performed event is not registered.");
                 return;
             }
 
@@ -311,7 +311,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _performedCallbacks.Remove((action, callback));
         }
 
-        public void UnregisterCanceled(T action, Action<InputAction.CallbackContext> callback)
+        public void UnsubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
@@ -320,13 +320,13 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             if (!_actions.TryGetValue(action, out var inputAction))
             {
-                Debug.LogError($"Failed to UnregisterCanceled. Action for key '{action}' is not registered.");
+                Debug.LogError($"Failed to UnsubscribeCanceled. Action for key '{action}' is not registered.");
                 return;
             }
 
             if (!_canceledCallbacks.TryGetValue((action, callback), out var wrappedCallback))
             {
-                Debug.LogError($"Failed to UnregisterCanceled. Callback for action '{action}' canceled event is not registered.");
+                Debug.LogError($"Failed to UnsubscribeCanceled. Callback for action '{action}' canceled event is not registered.");
                 return;
             }
 
