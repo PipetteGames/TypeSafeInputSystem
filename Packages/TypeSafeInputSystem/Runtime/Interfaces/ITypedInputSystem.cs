@@ -10,6 +10,11 @@ namespace PipetteGames.TypeSafeInputSystem.Interfaces
     public interface ITypedInputSystem<T> : IDisposable where T : Enum
     {
         /// <summary>
+        /// このインスタンスに関連付けられているデバイスを取得する
+        /// デバイスが指定されていない場合は null を返す
+        /// </summary>
+        InputDevice Device { get; }
+        /// <summary>
         /// アクションを登録する
         /// </summary>
         /// <param name="actionMapName">アクションマップ名</param>

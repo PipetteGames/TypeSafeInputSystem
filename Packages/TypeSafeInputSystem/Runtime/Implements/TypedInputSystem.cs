@@ -17,8 +17,25 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
         private Dictionary<(T, Action<InputAction.CallbackContext>), Action<InputAction.CallbackContext>> _canceledCallbacks;
 
         private bool _isEnabled;
+        private InputDevice _device;
 
-        public TypedInputSystem(InputActionAsset inputActionAsset)
+        public InputDevice Device => _device;
+
+        /// <summary>
+        /// TypedInputSystem のコンストラクタ
+        /// 全てのデバイスからの入力を受け付けます
+        /// </summary>
+        /// <param name="inputActionAsset">使用する InputActionAsset</param>
+        public TypedInputSystem(InputActionAsset inputActionAsset) : this(inputActionAsset, null)
+        {
+        }
+
+        /// <summary>
+        /// TypedInputSystem のコンストラクタ（デバイス指定版）
+        /// </summary>
+        /// <param name="inputActionAsset">使用する InputActionAsset</param>
+        /// <param name="device">特定のデバイス（マルチプレイヤー用）。null の場合は全てのデバイスからの入力を受け付けます</param>
+        public TypedInputSystem(InputActionAsset inputActionAsset, InputDevice device)
         {
             if (inputActionAsset == null)
             {
@@ -30,6 +47,27 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _performedCallbacks = new();
             _canceledCallbacks = new();
             _isEnabled = true;
+            _device = device;
+        }
+
+        /// <summary>
+        /// デバイスフィルタリングをチェック（InputAction版）
+        /// </summary>
+        /// <param name="inputAction">チェック対象のInputAction</param>
+        /// <returns>デバイスフィルタリングによってフィルタされるべき場合はtrue</returns>
+        private bool ShouldFilterByDevice(InputAction inputAction)
+        {
+            return _device != null && inputAction.activeControl?.device != _device;
+        }
+
+        /// <summary>
+        /// デバイスフィルタリングをチェック（CallbackContext版）
+        /// </summary>
+        /// <param name="context">チェック対象のCallbackContext</param>
+        /// <returns>デバイスフィルタリングによってフィルタされるべき場合はtrue</returns>
+        private bool ShouldFilterByDevice(InputAction.CallbackContext context)
+        {
+            return _device != null && context.control.device != _device;
         }
 
         public void RegisterAction(string actionMapName, T key)
@@ -121,6 +159,12 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 Debug.LogError($"Failed to ReadValue. Action for key '{action}' is not registered.");
                 return default;
             }
+
+            if (ShouldFilterByDevice(inputAction))
+            {
+                return default;
+            }
+
             return inputAction.ReadValue<TValue>();
         }
 
@@ -135,6 +179,12 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 Debug.LogError($"Failed to check IsPressed. Action for key '{action}' is not registered.");
                 return false;
             }
+
+            if (ShouldFilterByDevice(inputAction))
+            {
+                return false;
+            }
+
             return inputAction.IsPressed();
         }
 
@@ -149,6 +199,12 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 Debug.LogError($"Failed to check WasPressedThisFrame. Action for key '{action}' is not registered.");
                 return false;
             }
+
+            if (ShouldFilterByDevice(inputAction))
+            {
+                return false;
+            }
+
             return inputAction.WasPressedThisFrame();
         }
 
@@ -163,6 +219,12 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 Debug.LogError($"Failed to check WasReleasedThisFrame. Action for key '{action}' is not registered.");
                 return false;
             }
+
+            if (ShouldFilterByDevice(inputAction))
+            {
+                return false;
+            }
+
             return inputAction.WasReleasedThisFrame();
         }
 
@@ -187,6 +249,11 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
             {
+                if (ShouldFilterByDevice(context))
+                {
+                    return;
+                }
+
                 if (_isEnabled)
                 {
                     callback(context);
@@ -220,6 +287,11 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
             {
+                if (ShouldFilterByDevice(context))
+                {
+                    return;
+                }
+
                 if (_isEnabled)
                 {
                     callback(context);
@@ -253,6 +325,11 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
             {
+                if (ShouldFilterByDevice(context))
+                {
+                    return;
+                }
+
                 if (_isEnabled)
                 {
                     callback(context);
@@ -336,16 +413,54 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
         public void Dispose()
         {
+            // コールバックを全て解除してからクリア
+            if (_startedCallbacks != null)
+            {
+                foreach (var kvp in _startedCallbacks)
+                {
+                    var (action, _) = kvp.Key;
+                    if (_actions != null && _actions.TryGetValue(action, out var inputAction))
+                    {
+                        inputAction.started -= kvp.Value;
+                    }
+                }
+                _startedCallbacks.Clear();
+            }
+
+            if (_performedCallbacks != null)
+            {
+                foreach (var kvp in _performedCallbacks)
+                {
+                    var (action, _) = kvp.Key;
+                    if (_actions != null && _actions.TryGetValue(action, out var inputAction))
+                    {
+                        inputAction.performed -= kvp.Value;
+                    }
+                }
+                _performedCallbacks.Clear();
+            }
+
+            if (_canceledCallbacks != null)
+            {
+                foreach (var kvp in _canceledCallbacks)
+                {
+                    var (action, _) = kvp.Key;
+                    if (_actions != null && _actions.TryGetValue(action, out var inputAction))
+                    {
+                        inputAction.canceled -= kvp.Value;
+                    }
+                }
+                _canceledCallbacks.Clear();
+            }
+
             _inputActionAsset = null;
             _actions?.Clear();
             _actions = null;
-            _startedCallbacks?.Clear();
             _startedCallbacks = null;
-            _performedCallbacks?.Clear();
             _performedCallbacks = null;
-            _canceledCallbacks?.Clear();
             _canceledCallbacks = null;
             _isEnabled = false;
+            _device = null;
         }
     }
 }
