@@ -11,9 +11,9 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
         private Action _unsubscribe;
         private bool _isDisposed;
 
-        public TypedInputSubscription(Action unsubscribeAction)
+        public TypedInputSubscription(Action unsubscribe)
         {
-            _unsubscribe = unsubscribeAction ?? throw new ArgumentNullException(nameof(unsubscribeAction));
+            _unsubscribe = unsubscribe ?? throw new ArgumentNullException(nameof(unsubscribe));
             _isDisposed = false;
         }
 
