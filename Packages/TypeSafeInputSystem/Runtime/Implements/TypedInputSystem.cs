@@ -17,7 +17,14 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
         private Dictionary<(T, Action<InputAction.CallbackContext>), Action<InputAction.CallbackContext>> _canceledCallbacks;
 
         private bool _isEnabled;
+        private InputDevice _device;
 
+        public InputDevice Device => _device;
+
+        /// <summary>
+        /// TypedInputSystem のコンストラクタ
+        /// </summary>
+        /// <param name="inputActionAsset">使用する InputActionAsset</param>
         public TypedInputSystem(InputActionAsset inputActionAsset)
         {
             if (inputActionAsset == null)
@@ -30,6 +37,27 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _performedCallbacks = new();
             _canceledCallbacks = new();
             _isEnabled = true;
+            _device = null; // デバイス指定なし（全てのデバイスからの入力を受け付ける）
+        }
+
+        /// <summary>
+        /// TypedInputSystem のコンストラクタ（デバイス指定版）
+        /// </summary>
+        /// <param name="inputActionAsset">使用する InputActionAsset</param>
+        /// <param name="device">特定のデバイス（マルチプレイヤー用）</param>
+        public TypedInputSystem(InputActionAsset inputActionAsset, InputDevice device)
+        {
+            if (inputActionAsset == null)
+            {
+                throw new ArgumentNullException(nameof(inputActionAsset));
+            }
+            _inputActionAsset = inputActionAsset;
+            _actions = new();
+            _startedCallbacks = new();
+            _performedCallbacks = new();
+            _canceledCallbacks = new();
+            _isEnabled = true;
+            _device = device;
         }
 
         public void RegisterAction(string actionMapName, T key)
@@ -121,6 +149,13 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 Debug.LogError($"Failed to ReadValue. Action for key '{action}' is not registered.");
                 return default;
             }
+
+            // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを読み取る
+            if (_device != null && inputAction.activeControl?.device != _device)
+            {
+                return default;
+            }
+
             return inputAction.ReadValue<TValue>();
         }
 
@@ -135,6 +170,13 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 Debug.LogError($"Failed to check IsPressed. Action for key '{action}' is not registered.");
                 return false;
             }
+
+            // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを確認
+            if (_device != null && inputAction.activeControl?.device != _device)
+            {
+                return false;
+            }
+
             return inputAction.IsPressed();
         }
 
@@ -149,6 +191,13 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 Debug.LogError($"Failed to check WasPressedThisFrame. Action for key '{action}' is not registered.");
                 return false;
             }
+
+            // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを確認
+            if (_device != null && inputAction.activeControl?.device != _device)
+            {
+                return false;
+            }
+
             return inputAction.WasPressedThisFrame();
         }
 
@@ -163,6 +212,13 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 Debug.LogError($"Failed to check WasReleasedThisFrame. Action for key '{action}' is not registered.");
                 return false;
             }
+
+            // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを確認
+            if (_device != null && inputAction.activeControl?.device != _device)
+            {
+                return false;
+            }
+
             return inputAction.WasReleasedThisFrame();
         }
 
@@ -187,6 +243,12 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
             {
+                // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを処理
+                if (_device != null && context.control.device != _device)
+                {
+                    return;
+                }
+
                 if (_isEnabled)
                 {
                     callback(context);
@@ -218,6 +280,12 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
             {
+                // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを処理
+                if (_device != null && context.control.device != _device)
+                {
+                    return;
+                }
+
                 if (_isEnabled)
                 {
                     callback(context);
@@ -249,6 +317,12 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
             {
+                // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを処理
+                if (_device != null && context.control.device != _device)
+                {
+                    return;
+                }
+
                 if (_isEnabled)
                 {
                     callback(context);
