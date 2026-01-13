@@ -407,14 +407,51 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
         public void Dispose()
         {
+            // コールバックを全て解除してからクリア
+            if (_startedCallbacks != null)
+            {
+                foreach (var kvp in _startedCallbacks)
+                {
+                    var (action, _) = kvp.Key;
+                    if (_actions != null && _actions.TryGetValue(action, out var inputAction))
+                    {
+                        inputAction.started -= kvp.Value;
+                    }
+                }
+                _startedCallbacks.Clear();
+            }
+
+            if (_performedCallbacks != null)
+            {
+                foreach (var kvp in _performedCallbacks)
+                {
+                    var (action, _) = kvp.Key;
+                    if (_actions != null && _actions.TryGetValue(action, out var inputAction))
+                    {
+                        inputAction.performed -= kvp.Value;
+                    }
+                }
+                _performedCallbacks.Clear();
+            }
+
+            if (_canceledCallbacks != null)
+            {
+                foreach (var kvp in _canceledCallbacks)
+                {
+                    var (action, _) = kvp.Key;
+                    if (_actions != null && _actions.TryGetValue(action, out var inputAction))
+                    {
+                        inputAction.canceled -= kvp.Value;
+                    }
+                }
+                _canceledCallbacks.Clear();
+            }
+
             _inputActionAsset = null;
             _actions?.Clear();
             _actions = null;
-            _startedCallbacks?.Clear();
             _startedCallbacks = null;
-            _performedCallbacks?.Clear();
             _performedCallbacks = null;
-            _canceledCallbacks?.Clear();
             _canceledCallbacks = null;
             _isEnabled = false;
             _device = null;
