@@ -60,6 +60,26 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _device = device;
         }
 
+        /// <summary>
+        /// デバイスフィルタリングをチェック（InputAction版）
+        /// </summary>
+        /// <param name="inputAction">チェック対象のInputAction</param>
+        /// <returns>デバイスフィルタリングによってフィルタされるべき場合はtrue</returns>
+        private bool ShouldFilterByDevice(InputAction inputAction)
+        {
+            return _device != null && inputAction.activeControl?.device != _device;
+        }
+
+        /// <summary>
+        /// デバイスフィルタリングをチェック（CallbackContext版）
+        /// </summary>
+        /// <param name="context">チェック対象のCallbackContext</param>
+        /// <returns>デバイスフィルタリングによってフィルタされるべき場合はtrue</returns>
+        private bool ShouldFilterByDevice(InputAction.CallbackContext context)
+        {
+            return _device != null && context.control.device != _device;
+        }
+
         public void RegisterAction(string actionMapName, T key)
         {
             RegisterAction(actionMapName, key, key.ToString());
@@ -150,8 +170,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 return default;
             }
 
-            // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを読み取る
-            if (_device != null && inputAction.activeControl?.device != _device)
+            if (ShouldFilterByDevice(inputAction))
             {
                 return default;
             }
@@ -171,8 +190,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 return false;
             }
 
-            // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを確認
-            if (_device != null && inputAction.activeControl?.device != _device)
+            if (ShouldFilterByDevice(inputAction))
             {
                 return false;
             }
@@ -192,8 +210,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 return false;
             }
 
-            // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを確認
-            if (_device != null && inputAction.activeControl?.device != _device)
+            if (ShouldFilterByDevice(inputAction))
             {
                 return false;
             }
@@ -213,8 +230,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 return false;
             }
 
-            // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを確認
-            if (_device != null && inputAction.activeControl?.device != _device)
+            if (ShouldFilterByDevice(inputAction))
             {
                 return false;
             }
@@ -243,8 +259,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
             {
-                // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを処理
-                if (_device != null && context.control.device != _device)
+                if (ShouldFilterByDevice(context))
                 {
                     return;
                 }
@@ -280,8 +295,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
             {
-                // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを処理
-                if (_device != null && context.control.device != _device)
+                if (ShouldFilterByDevice(context))
                 {
                     return;
                 }
@@ -317,8 +331,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
             {
-                // デバイスフィルタリング: デバイスが指定されている場合は、そのデバイスからの入力のみを処理
-                if (_device != null && context.control.device != _device)
+                if (ShouldFilterByDevice(context))
                 {
                     return;
                 }
@@ -414,6 +427,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _canceledCallbacks?.Clear();
             _canceledCallbacks = null;
             _isEnabled = false;
+            _device = null;
         }
     }
 }
