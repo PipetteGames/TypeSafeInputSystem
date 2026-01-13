@@ -30,7 +30,7 @@ Unity の Input System をラップし、ジェネリクスを活用した型安
 
 URL の末尾にバージョン指定を追加
 
-例: `https://github.com/PipetteGames/TypeSafeInputSystem.git?path=Packages/TypeSafeInputSystem#v0.3.1`
+例: `https://github.com/PipetteGames/TypeSafeInputSystem.git?path=Packages/TypeSafeInputSystem#v0.4.0`
 
 ## 使い方
 
