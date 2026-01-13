@@ -147,6 +147,61 @@ if (_typedInputSystem.IsEnabled())
 
 コールバック方式で入力検知を行う場合：
 
+#### 方法1: IInputSubscription を使った購読解除
+
+```csharp
+using PipetteGames.TypeSafeInputSystem.Interfaces;
+
+public class PlayerController : MonoBehaviour
+{
+    private ITypedInputSystem<InputActionType> _typedInputSystem;
+    private IInputSubscription _sprintStartedSubscription;
+    private IInputSubscription _interactPerformedSubscription;
+    private IInputSubscription _sprintCanceledSubscription;
+
+    private void Start()
+    {
+        // ... 初期化コード ...
+
+        // Started イベント登録（入力開始時）
+        _sprintStartedSubscription = _typedInputSystem.RegisterStarted(InputActionType.Sprint, OnSprintStarted);
+
+        // Performed イベント登録（入力実行時）
+        _interactPerformedSubscription = _typedInputSystem.RegisterPerformed(InputActionType.Interact, OnInteractPerformed);
+
+        // Canceled イベント登録（入力終了時）
+        _sprintCanceledSubscription = _typedInputSystem.RegisterCanceled(InputActionType.Sprint, OnSprintCanceled);
+    }
+
+    private void OnSprintStarted(InputAction.CallbackContext context)
+    {
+        Debug.Log("Sprint started!");
+    }
+
+    private void OnInteractPerformed(InputAction.CallbackContext context)
+    {
+        Debug.Log("Interact performed!");
+    }
+
+    private void OnSprintCanceled(InputAction.CallbackContext context)
+    {
+        Debug.Log("Sprint canceled!");
+    }
+
+    private void OnDestroy()
+    {
+        // IInputSubscription.Dispose() で購読解除
+        _sprintStartedSubscription?.Dispose();
+        _interactPerformedSubscription?.Dispose();
+        _sprintCanceledSubscription?.Dispose();
+
+        _typedInputSystem?.Dispose();
+    }
+}
+```
+
+#### 方法2: 従来の Unregister メソッドを使った購読解除
+
 ```csharp
 private void Start()
 {
@@ -201,14 +256,14 @@ private void OnDestroy()
 
 ### イベント登録
 
-| メソッド                                              | 説明                                     |
-| ----------------------------------------------------- | ---------------------------------------- |
-| `RegisterStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のコールバックを登録           |
-| `RegisterPerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のコールバックを登録           |
-| `RegisterCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のコールバックを登録           |
-| `UnregisterStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のコールバックを登録解除       |
-| `UnregisterPerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のコールバックを登録解除       |
-| `UnregisterCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のコールバックを登録解除       |
+| メソッド                                              | 説明                                     | 戻り値 |
+| ----------------------------------------------------- | ---------------------------------------- | ------ |
+| `RegisterStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のコールバックを登録           | `IInputSubscription` (Dispose() で購読解除可能) |
+| `RegisterPerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のコールバックを登録           | `IInputSubscription` (Dispose() で購読解除可能) |
+| `RegisterCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のコールバックを登録           | `IInputSubscription` (Dispose() で購読解除可能) |
+| `UnregisterStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のコールバックを登録解除       | - |
+| `UnregisterPerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のコールバックを登録解除       | - |
+| `UnregisterCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のコールバックを登録解除       | - |
 
 ### 有効化制御
 
@@ -246,6 +301,9 @@ private void OnDestroy()
 -   **グローバルフラグの影響**: グローバルフラグが無効な場合、コールバックは呼び出されません。
 -   **コールバック重複登録**: 同じコールバック参照を複数回登録しようとすると警告が出力され、無視されます。
 -   **コールバック参照管理**: 登録解除時には、登録時と同じコールバック参照を使用する必要があります。
+-   **購読解除の方法**: 
+    -   **推奨**: `IInputSubscription` の `Dispose()` メソッドで購読解除（戻り値を保持して `Dispose()` を呼ぶ）
+    -   **従来の方法**: `Unregister*` メソッドで明示的に登録解除
 
 ## ライセンス
 

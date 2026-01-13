@@ -166,23 +166,23 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             return inputAction.WasReleasedThisFrame();
         }
 
-        public void RegisterStarted(T action, Action<InputAction.CallbackContext> callback)
+        public IInputSubscription RegisterStarted(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
-                return;
+                return null;
             }
 
             if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to RegisterStarted. Action for key '{action}' is not registered.");
-                return;
+                return null;
             }
 
             if (_startedCallbacks.ContainsKey((action, callback)))
             {
                 Debug.LogWarning($"Callback for action '{action}' started event is already registered. Ignoring duplicate registration.");
-                return;
+                return null;
             }
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
@@ -195,25 +195,27 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             _startedCallbacks[(action, callback)] = wrappedCallback;
             inputAction.started += wrappedCallback;
+
+            return new InputSubscription<T>(this, action, callback, InputSubscription<T>.CallbackType.Started);
         }
 
-        public void RegisterPerformed(T action, Action<InputAction.CallbackContext> callback)
+        public IInputSubscription RegisterPerformed(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
-                return;
+                return null;
             }
 
             if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to RegisterPerformed. Action for key '{action}' is not registered.");
-                return;
+                return null;
             }
 
             if (_performedCallbacks.ContainsKey((action, callback)))
             {
                 Debug.LogWarning($"Callback for action '{action}' performed event is already registered. Ignoring duplicate registration.");
-                return;
+                return null;
             }
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
@@ -226,25 +228,27 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             _performedCallbacks[(action, callback)] = wrappedCallback;
             inputAction.performed += wrappedCallback;
+
+            return new InputSubscription<T>(this, action, callback, InputSubscription<T>.CallbackType.Performed);
         }
 
-        public void RegisterCanceled(T action, Action<InputAction.CallbackContext> callback)
+        public IInputSubscription RegisterCanceled(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
-                return;
+                return null;
             }
 
             if (!_actions.TryGetValue(action, out var inputAction))
             {
                 Debug.LogError($"Failed to RegisterCanceled. Action for key '{action}' is not registered.");
-                return;
+                return null;
             }
 
             if (_canceledCallbacks.ContainsKey((action, callback)))
             {
                 Debug.LogWarning($"Callback for action '{action}' canceled event is already registered. Ignoring duplicate registration.");
-                return;
+                return null;
             }
 
             Action<InputAction.CallbackContext> wrappedCallback = (context) =>
@@ -257,6 +261,8 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
             _canceledCallbacks[(action, callback)] = wrappedCallback;
             inputAction.canceled += wrappedCallback;
+
+            return new InputSubscription<T>(this, action, callback, InputSubscription<T>.CallbackType.Canceled);
         }
 
         public void UnregisterStarted(T action, Action<InputAction.CallbackContext> callback)
