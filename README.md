@@ -190,15 +190,15 @@ private void OnDestroy()
 
 **注意**: コールバック購読時と購読解除時には、**同じコールバック参照を使用する必要があります**。メソッドグループを直接渡さず、メソッド参照を保持して使用してください。
 
-### 7. IInputSubscription による購読管理
+### 7. ITypedInputSubscription による購読管理
 
-`Subscribe*` メソッドは `IInputSubscription` を返すため、`Dispose()` を使用して購読解除することもできます：
+`Subscribe*` メソッドは `ITypedInputSubscription` を返すため、`Dispose()` を使用して購読解除することもできます：
 
 ```csharp
 public class PlayerController : MonoBehaviour
 {
     private ITypedInputSystem<InputActionType> _typedInputSystem;
-    private IInputSubscription _sprintSubscription;
+    private ITypedInputSubscription _sprintSubscription;
 
     private void Start()
     {
@@ -254,9 +254,9 @@ private void OnInteract(InputAction.CallbackContext context)
 
 | メソッド                                              | 説明                                     |
 | ----------------------------------------------------- | ---------------------------------------- |
-| `SubscribeStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のイベントを購読。IInputSubscriptionを返す           |
-| `SubscribePerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のイベントを購読。IInputSubscriptionを返す           |
-| `SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のイベントを購読。IInputSubscriptionを返す           |
+| `SubscribeStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のイベントを購読。ITypedInputSubscriptionを返す           |
+| `SubscribePerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のイベントを購読。ITypedInputSubscriptionを返す           |
+| `SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のイベントを購読。ITypedInputSubscriptionを返す           |
 | `UnsubscribeStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のイベントを購読解除       |
 | `UnsubscribePerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のイベントを購読解除       |
 | `UnsubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のイベントを購読解除       |
@@ -297,7 +297,7 @@ private void OnInteract(InputAction.CallbackContext context)
 -   **グローバルフラグの影響**: グローバルフラグが無効な場合、コールバックは呼び出されません。
 -   **コールバック重複購読**: 同じコールバック参照を複数回購読しようとすると警告が出力され、無視されます。
 -   **コールバック参照管理**: 購読解除時には、購読時と同じコールバック参照を使用する必要があります。
--   **IInputSubscription**: 各 Subscribe メソッドは `IInputSubscription` を返すため、`Dispose()` で購読解除が可能です。
+-   **ITypedInputSubscription**: 各 Subscribe メソッドは `ITypedInputSubscription` を返すため、`Dispose()` で購読解除が可能です。
 
 ## ライセンス
 
