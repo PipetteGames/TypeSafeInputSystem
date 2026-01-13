@@ -73,40 +73,43 @@ namespace PipetteGames.TypeSafeInputSystem.Interfaces
         /// <param name="action">アクション識別キー</param>
         TValue ReadValue<TValue>(T action) where TValue : struct;
         /// <summary>
-        /// アクションが開始されたときのコールバックを登録
+        /// アクションが開始されたときのイベントを購読
         /// </summary>
         /// <param name="action">アクション識別キー</param>
         /// <param name="callback">実行するコールバック</param>
-        void RegisterStarted(T action, Action<InputAction.CallbackContext> callback);
+        /// <returns>購読を表すオブジェクト。Dispose()で購読解除可能</returns>
+        ITypedInputSubscription SubscribeStarted(T action, Action<InputAction.CallbackContext> callback);
         /// <summary>
-        /// アクションが実行されたときのコールバックを登録
+        /// アクションが実行されたときのイベントを購読
         /// </summary>
         /// <param name="action">アクション識別キー</param>
         /// <param name="callback">実行するコールバック</param>
-        void RegisterPerformed(T action, Action<InputAction.CallbackContext> callback);
+        /// <returns>購読を表すオブジェクト。Dispose()で購読解除可能</returns>
+        ITypedInputSubscription SubscribePerformed(T action, Action<InputAction.CallbackContext> callback);
         /// <summary>
-        /// アクションがキャンセルされたときのコールバックを登録
+        /// アクションがキャンセルされたときのイベントを購読
         /// </summary>
         /// <param name="action">アクション識別キー</param>
         /// <param name="callback">実行するコールバック</param>
-        void RegisterCanceled(T action, Action<InputAction.CallbackContext> callback);
+        /// <returns>購読を表すオブジェクト。Dispose()で購読解除可能</returns>
+        ITypedInputSubscription SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback);
         /// <summary>
-        /// アクションが開始されたときのコールバックを登録解除
+        /// アクションが開始されたときのイベントを購読解除
         /// </summary>
         /// <param name="action">アクション識別キー</param>
-        /// <param name="callback">登録解除するコールバック</param>
-        void UnregisterStarted(T action, Action<InputAction.CallbackContext> callback);
+        /// <param name="callback">購読解除するコールバック</param>
+        void UnsubscribeStarted(T action, Action<InputAction.CallbackContext> callback);
         /// <summary>
-        /// アクションが実行されたときのコールバックを登録解除
+        /// アクションが実行されたときのイベントを購読解除
         /// </summary>
         /// <param name="action">アクション識別キー</param>
-        /// <param name="callback">登録解除するコールバック</param>
-        void UnregisterPerformed(T action, Action<InputAction.CallbackContext> callback);
+        /// <param name="callback">購読解除するコールバック</param>
+        void UnsubscribePerformed(T action, Action<InputAction.CallbackContext> callback);
         /// <summary>
-        /// アクションがキャンセルされたときのコールバックを登録解除
+        /// アクションがキャンセルされたときのイベントを購読解除
         /// </summary>
         /// <param name="action">アクション識別キー</param>
-        /// <param name="callback">登録解除するコールバック</param>
-        void UnregisterCanceled(T action, Action<InputAction.CallbackContext> callback);
+        /// <param name="callback">購読解除するコールバック</param>
+        void UnsubscribeCanceled(T action, Action<InputAction.CallbackContext> callback);
     }
 }

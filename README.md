@@ -152,14 +152,14 @@ private void Start()
 {
     // ... 初期化コード ...
 
-    // Started イベント登録（入力開始時）
-    _typedInputSystem.RegisterStarted(InputActionType.Sprint, OnSprintStarted);
+    // Started イベント購読（入力開始時）
+    _typedInputSystem.SubscribeStarted(InputActionType.Sprint, OnSprintStarted);
 
-    // Performed イベント登録（入力実行時）
-    _typedInputSystem.RegisterPerformed(InputActionType.Interact, OnInteractPerformed);
+    // Performed イベント購読（入力実行時）
+    _typedInputSystem.SubscribePerformed(InputActionType.Interact, OnInteractPerformed);
 
-    // Canceled イベント登録（入力終了時）
-    _typedInputSystem.RegisterCanceled(InputActionType.Sprint, OnSprintCanceled);
+    // Canceled イベント購読（入力終了時）
+    _typedInputSystem.SubscribeCanceled(InputActionType.Sprint, OnSprintCanceled);
 }
 
 private void OnSprintStarted(InputAction.CallbackContext context)
@@ -179,16 +179,67 @@ private void OnSprintCanceled(InputAction.CallbackContext context)
 
 private void OnDestroy()
 {
-    // コールバックを登録解除
-    _typedInputSystem?.UnregisterStarted(InputActionType.Sprint, OnSprintStarted);
-    _typedInputSystem?.UnregisterPerformed(InputActionType.Interact, OnInteractPerformed);
-    _typedInputSystem?.UnregisterCanceled(InputActionType.Sprint, OnSprintCanceled);
+    // イベントを購読解除
+    _typedInputSystem?.UnsubscribeStarted(InputActionType.Sprint, OnSprintStarted);
+    _typedInputSystem?.UnsubscribePerformed(InputActionType.Interact, OnInteractPerformed);
+    _typedInputSystem?.UnsubscribeCanceled(InputActionType.Sprint, OnSprintCanceled);
 
     _typedInputSystem?.Dispose();
 }
 ```
 
-**注意**: コールバック登録時と登録解除時には、**同じコールバック参照を使用する必要があります**。メソッドグループを直接渡さず、メソッド参照を保持して使用してください。
+**注意**: コールバック購読時と購読解除時には、**同じコールバック参照を使用する必要があります**。メソッドグループを直接渡さず、メソッド参照を保持して使用してください。
+
+### 7. IInputSubscription による購読管理
+
+`Subscribe*` メソッドは `IInputSubscription` を返すため、`Dispose()` を使用して購読解除することもできます：
+
+```csharp
+public class PlayerController : MonoBehaviour
+{
+    private ITypedInputSystem<InputActionType> _typedInputSystem;
+    private IInputSubscription _sprintSubscription;
+
+    private void Start()
+    {
+        // ... 初期化コード ...
+
+        // 購読を変数で保持
+        _sprintSubscription = _typedInputSystem.SubscribeStarted(InputActionType.Sprint, OnSprintStarted);
+    }
+
+    private void OnSprintStarted(InputAction.CallbackContext context)
+    {
+        Debug.Log("Sprint started!");
+    }
+
+    private void OnDestroy()
+    {
+        // Dispose() で購読解除
+        _sprintSubscription?.Dispose();
+        _typedInputSystem?.Dispose();
+    }
+}
+```
+
+`using` 文を使用すると、スコープを抜けた際に自動的に購読解除されます：
+
+```csharp
+private void TemporarySubscribe()
+{
+    // using 文でスコープ内のみ購読
+    using (var subscription = _typedInputSystem.SubscribePerformed(InputActionType.Interact, OnInteract))
+    {
+        // このスコープ内でのみコールバックが有効
+        DoSomething();
+    } // スコープを抜けると自動的に購読解除
+}
+
+private void OnInteract(InputAction.CallbackContext context)
+{
+    Debug.Log("Interact!");
+}
+```
 
 ## API リファレンス
 
@@ -199,16 +250,16 @@ private void OnDestroy()
 | `RegisterAction(string actionMapName, T key)`                    | アクションを登録（アクション名はキーの名前を使用） |
 | `RegisterAction(string actionMapName, T key, string actionName)` | アクションを登録（アクション名を指定）             |
 
-### イベント登録
+### イベント購読
 
 | メソッド                                              | 説明                                     |
 | ----------------------------------------------------- | ---------------------------------------- |
-| `RegisterStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のコールバックを登録           |
-| `RegisterPerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のコールバックを登録           |
-| `RegisterCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のコールバックを登録           |
-| `UnregisterStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のコールバックを登録解除       |
-| `UnregisterPerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のコールバックを登録解除       |
-| `UnregisterCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のコールバックを登録解除       |
+| `SubscribeStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のイベントを購読。IInputSubscriptionを返す           |
+| `SubscribePerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のイベントを購読。IInputSubscriptionを返す           |
+| `SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のイベントを購読。IInputSubscriptionを返す           |
+| `UnsubscribeStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のイベントを購読解除       |
+| `UnsubscribePerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のイベントを購読解除       |
+| `UnsubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のイベントを購読解除       |
 
 ### 有効化制御
 
@@ -241,11 +292,12 @@ private void OnDestroy()
 
 ### イベントドリブン入力検知
 
-`RegisterStarted`, `RegisterPerformed`, `RegisterCanceled` メソッドを使用することで、イベント駆動型の入力処理が可能です。
+`SubscribeStarted`, `SubscribePerformed`, `SubscribeCanceled` メソッドを使用することで、イベント駆動型の入力処理が可能です。
 
 -   **グローバルフラグの影響**: グローバルフラグが無効な場合、コールバックは呼び出されません。
--   **コールバック重複登録**: 同じコールバック参照を複数回登録しようとすると警告が出力され、無視されます。
--   **コールバック参照管理**: 登録解除時には、登録時と同じコールバック参照を使用する必要があります。
+-   **コールバック重複購読**: 同じコールバック参照を複数回購読しようとすると警告が出力され、無視されます。
+-   **コールバック参照管理**: 購読解除時には、購読時と同じコールバック参照を使用する必要があります。
+-   **IInputSubscription**: 各 Subscribe メソッドは `IInputSubscription` を返すため、`Dispose()` で購読解除が可能です。
 
 ## ライセンス
 
