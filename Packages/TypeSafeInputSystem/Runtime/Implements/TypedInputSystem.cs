@@ -23,28 +23,18 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
 
         /// <summary>
         /// TypedInputSystem のコンストラクタ
+        /// 全てのデバイスからの入力を受け付けます
         /// </summary>
         /// <param name="inputActionAsset">使用する InputActionAsset</param>
-        public TypedInputSystem(InputActionAsset inputActionAsset)
+        public TypedInputSystem(InputActionAsset inputActionAsset) : this(inputActionAsset, null)
         {
-            if (inputActionAsset == null)
-            {
-                throw new ArgumentNullException(nameof(inputActionAsset));
-            }
-            _inputActionAsset = inputActionAsset;
-            _actions = new();
-            _startedCallbacks = new();
-            _performedCallbacks = new();
-            _canceledCallbacks = new();
-            _isEnabled = true;
-            _device = null; // デバイス指定なし（全てのデバイスからの入力を受け付ける）
         }
 
         /// <summary>
         /// TypedInputSystem のコンストラクタ（デバイス指定版）
         /// </summary>
         /// <param name="inputActionAsset">使用する InputActionAsset</param>
-        /// <param name="device">特定のデバイス（マルチプレイヤー用）</param>
+        /// <param name="device">特定のデバイス（マルチプレイヤー用）。null の場合は全てのデバイスからの入力を受け付けます</param>
         public TypedInputSystem(InputActionAsset inputActionAsset, InputDevice device)
         {
             if (inputActionAsset == null)
