@@ -53,6 +53,9 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 case CallbackType.Canceled:
                     _inputSystem.UnregisterCanceled(_action, _callback);
                     break;
+                default:
+                    UnityEngine.Debug.LogError($"Unknown CallbackType: {_callbackType}");
+                    break;
             }
 
             _isDisposed = true;
