@@ -53,6 +53,8 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
                 case CallbackType.Canceled:
                     _inputSystem.UnregisterCanceled(_action, _callback);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(_callbackType), _callbackType, "Unknown callback type");
             }
 
             _disposed = true;
