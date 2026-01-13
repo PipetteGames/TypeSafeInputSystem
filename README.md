@@ -179,7 +179,7 @@ private void OnSprintCanceled(InputAction.CallbackContext context)
 
 private void OnDestroy()
 {
-    // コールバックを購読解除
+    // イベントを購読解除
     _typedInputSystem?.UnsubscribeStarted(InputActionType.Sprint, OnSprintStarted);
     _typedInputSystem?.UnsubscribePerformed(InputActionType.Interact, OnInteractPerformed);
     _typedInputSystem?.UnsubscribeCanceled(InputActionType.Sprint, OnSprintCanceled);
@@ -254,12 +254,12 @@ private void OnInteract(InputAction.CallbackContext context)
 
 | メソッド                                              | 説明                                     |
 | ----------------------------------------------------- | ---------------------------------------- |
-| `SubscribeStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のコールバックを購読。IInputSubscriptionを返す           |
-| `SubscribePerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のコールバックを購読。IInputSubscriptionを返す           |
-| `SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のコールバックを購読。IInputSubscriptionを返す           |
-| `UnsubscribeStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のコールバックを購読解除       |
-| `UnsubscribePerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のコールバックを購読解除       |
-| `UnsubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のコールバックを購読解除       |
+| `SubscribeStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のイベントを購読。IInputSubscriptionを返す           |
+| `SubscribePerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のイベントを購読。IInputSubscriptionを返す           |
+| `SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のイベントを購読。IInputSubscriptionを返す           |
+| `UnsubscribeStarted(T action, Action<InputAction.CallbackContext> callback)`    | 入力開始時のイベントを購読解除       |
+| `UnsubscribePerformed(T action, Action<InputAction.CallbackContext> callback)`  | 入力実行時のイベントを購読解除       |
+| `UnsubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)`   | 入力終了時のイベントを購読解除       |
 
 ### 有効化制御
 
