@@ -6,12 +6,12 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
     /// <summary>
     /// 入力イベントの購読を表す実装クラス
     /// </summary>
-    internal class InputSubscription : IInputSubscription
+    internal class TypedInputSubscription : ITypedInputSubscription
     {
         private Action _unsubscribe;
         private bool _isDisposed;
 
-        public InputSubscription(Action unsubscribeAction)
+        public TypedInputSubscription(Action unsubscribeAction)
         {
             _unsubscribe = unsubscribeAction ?? throw new ArgumentNullException(nameof(unsubscribeAction));
             _isDisposed = false;

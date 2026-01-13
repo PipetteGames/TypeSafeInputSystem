@@ -78,21 +78,21 @@ namespace PipetteGames.TypeSafeInputSystem.Interfaces
         /// <param name="action">アクション識別キー</param>
         /// <param name="callback">実行するコールバック</param>
         /// <returns>購読を表すオブジェクト。Dispose()で購読解除可能</returns>
-        IInputSubscription SubscribeStarted(T action, Action<InputAction.CallbackContext> callback);
+        ITypedInputSubscription SubscribeStarted(T action, Action<InputAction.CallbackContext> callback);
         /// <summary>
         /// アクションが実行されたときのイベントを購読
         /// </summary>
         /// <param name="action">アクション識別キー</param>
         /// <param name="callback">実行するコールバック</param>
         /// <returns>購読を表すオブジェクト。Dispose()で購読解除可能</returns>
-        IInputSubscription SubscribePerformed(T action, Action<InputAction.CallbackContext> callback);
+        ITypedInputSubscription SubscribePerformed(T action, Action<InputAction.CallbackContext> callback);
         /// <summary>
         /// アクションがキャンセルされたときのイベントを購読
         /// </summary>
         /// <param name="action">アクション識別キー</param>
         /// <param name="callback">実行するコールバック</param>
         /// <returns>購読を表すオブジェクト。Dispose()で購読解除可能</returns>
-        IInputSubscription SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback);
+        ITypedInputSubscription SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback);
         /// <summary>
         /// アクションが開始されたときのイベントを購読解除
         /// </summary>

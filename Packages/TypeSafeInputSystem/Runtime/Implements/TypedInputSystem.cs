@@ -166,7 +166,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             return inputAction.WasReleasedThisFrame();
         }
 
-        public IInputSubscription SubscribeStarted(T action, Action<InputAction.CallbackContext> callback)
+        public ITypedInputSubscription SubscribeStarted(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
@@ -196,10 +196,10 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _startedCallbacks[(action, callback)] = wrappedCallback;
             inputAction.started += wrappedCallback;
 
-            return new InputSubscription(() => UnsubscribeStarted(action, callback));
+            return new TypedInputSubscription(() => UnsubscribeStarted(action, callback));
         }
 
-        public IInputSubscription SubscribePerformed(T action, Action<InputAction.CallbackContext> callback)
+        public ITypedInputSubscription SubscribePerformed(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
@@ -229,10 +229,10 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _performedCallbacks[(action, callback)] = wrappedCallback;
             inputAction.performed += wrappedCallback;
 
-            return new InputSubscription(() => UnsubscribePerformed(action, callback));
+            return new TypedInputSubscription(() => UnsubscribePerformed(action, callback));
         }
 
-        public IInputSubscription SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)
+        public ITypedInputSubscription SubscribeCanceled(T action, Action<InputAction.CallbackContext> callback)
         {
             if (callback == null)
             {
@@ -262,7 +262,7 @@ namespace PipetteGames.TypeSafeInputSystem.Implements
             _canceledCallbacks[(action, callback)] = wrappedCallback;
             inputAction.canceled += wrappedCallback;
 
-            return new InputSubscription(() => UnsubscribeCanceled(action, callback));
+            return new TypedInputSubscription(() => UnsubscribeCanceled(action, callback));
         }
 
         public void UnsubscribeStarted(T action, Action<InputAction.CallbackContext> callback)
